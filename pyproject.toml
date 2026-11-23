@@ -23,3 +23,6 @@ voice-client = "voice_control.app:client_main"
 
 [tool.setuptools.packages.find]
 include = ["voice_control*"]
+
+[tool.setuptools.package-data]
+voice_control = ["assets/*.webp"]

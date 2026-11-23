@@ -15,3 +15,7 @@ RemoteVibe Copyright (c) 2026 ShineLee；其完整原始代码保存在 `vendor/
 PySide6、qasync、Bleak、websockets、Playwright、sounddevice、pynput、PyInstaller 及其依赖遵循各自许可。
 发行二进制时须同时提供本项目对应源码、许可及所包含依赖的许可，尤其是 Qt / PySide6 的适用义务。
 Chrome、语音输入法、虚拟音频驱动、Node.js 和 DeepSeek Harness 由用户另行安装，不包含在本项目中。
+
+桌面龙宝形象使用用户指定的原始精灵图：
+https://jlagent.ejianlong.com/office-home/hero-mascot-sprite.webp
+资源保存在 `voice_control/assets/hero-mascot-sprite.webp`，保持原文件内容，程序运行时切帧播放。图像权利归原权利人所有。

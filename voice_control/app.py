@@ -16,6 +16,7 @@ from qasync import QEventLoop
 
 from . import dsh
 from .browser import ChromeScreens
+from .companion import DesktopCompanion
 from .config import data_dir, load, save, validate
 from .network import ControllerServer, run_client
 from .remote import Remote
@@ -126,6 +127,32 @@ class Window(QMainWindow):
                 self.config_editor.setPlainText(config_path.read_text(encoding="utf-8", errors="replace"))
             self.log(f"读取配置失败，原文件保持不变：{exc}")
             self.tabs.setCurrentIndex(1)
+
+        self.companion = None
+        if self.role == "controller":
+            self.companion = DesktopCompanion(self.companion_state)
+            self.companion.settings_requested.connect(self.open_settings)
+            self.companion.main_requested.connect(self.open_running)
+            self.companion.exit_requested.connect(self.request_exit)
+
+    def companion_state(self):
+        if self.voice_state != "idle":
+            return "listening"
+        if self.busy:
+            return "thinking"
+        return "ready" if self.server else "idle"
+
+    def open_settings(self):
+        self.tabs.setCurrentIndex(1)
+        self.showNormal()
+        self.raise_()
+        self.activateWindow()
+
+    def open_running(self):
+        self.tabs.setCurrentIndex(0)
+        self.showNormal()
+        self.raise_()
+        self.activateWindow()
 
     def build_config_tab(self):
         panel = QWidget()
@@ -463,6 +490,17 @@ class Window(QMainWindow):
 
     def closeEvent(self, event):
         event.ignore()
+        if self.role == "controller" and not self.closing:
+            self.clear_text_wait()
+            if self.voice_state != "idle":
+                self.voice_cancelled = True
+                if self.remote and self.remote.failed:
+                    self.remote.failed.set()
+            self.hide()
+            return
+        self.request_exit()
+
+    def request_exit(self):
         if not self.closing:
             self.closing = True
             self.spawn(self.shutdown())
@@ -476,6 +514,8 @@ class Window(QMainWindow):
                 task.cancel()
             await asyncio.gather(*pending, return_exceptions=True)
         finally:
+            if self.companion:
+                self.companion.shutdown()
             self.hide()
             self.closed.set()
 
@@ -498,7 +538,10 @@ def main(role):
     asyncio.set_event_loop(loop)
     with loop:
         window = Window(role, (args.config or directory / f"{role}.json").resolve())
-        window.show()
+        if window.companion:
+            window.companion.show()
+        else:
+            window.show()
         loop.run_until_complete(window.closed.wait())
     lock.unlock()
 

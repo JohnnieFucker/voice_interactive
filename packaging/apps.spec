@@ -13,7 +13,7 @@ notices = [(str(root / "LICENSE"), "."), (str(root / "THIRD_PARTY_NOTICES.md"), 
 for role, name in (("controller", "VoiceController"), ("client", "ScreenClient")):
     analysis = Analysis(
         [str(root / "packaging" / f"{role}.py")], pathex=[str(root)],
-        binaries=binaries, datas=datas + notices, hiddenimports=hidden,
+        binaries=binaries, datas=datas + notices + [(str(root / "voice_control/assets"), "voice_control/assets")], hiddenimports=hidden,
         excludes=["tkinter", "PyQt5", "PyQt6"],
     )
     pyz = PYZ(analysis.pure)
