@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voice-screen-control"
+version = "0.1.0"
+description = "蓝牙遥控器语音集控与三屏 Chrome 客户端"
+requires-python = ">=3.11"
+license = {text = "GPL-3.0-only"}
+dependencies = [
+  "PySide6-Essentials>=6.8,<7", "qasync>=0.27,<1", "bleak>=1,<4",
+  "websockets>=15,<18", "playwright>=1.51,<2",
+  "sounddevice>=0.5,<1", "pynput>=1.7,<2",
+]
+
+[project.optional-dependencies]
+package = ["pyinstaller>=6.12,<7"]
+
+[project.scripts]
+voice-controller = "voice_control.app:controller_main"
+voice-client = "voice_control.app:client_main"
+
+[tool.setuptools.packages.find]
+include = ["voice_control*"]
